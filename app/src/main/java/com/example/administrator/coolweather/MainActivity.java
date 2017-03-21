@@ -1,30 +1,23 @@
 package com.example.administrator.coolweather;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
-
-import org.litepal.LitePal;
-import org.litepal.crud.DataSupport;
-
-import util.Utility;
 
 public class MainActivity extends AppCompatActivity {
+    /*程序主入口 ，加载一个ChooseAreaFragmeent， */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-      /* *//* LitePal.getDatabase();*//*
-       findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
-           @Override
-           public void onClick(View v) {
-               Utility.handleProvinceResponse("{\"name\":\"fff\",\"id\":\"3\"}");
-           }
-       });*/
-    }
-
-    @Override
-    protected void onDestroy() {
+        SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(this);
+        if(prefs.getString("weather",null)!=null){
+            Intent intnt=new Intent(this,WeatherActivity.class);
+            startActivity(intnt);
+            finish();
+        }
     }
 }

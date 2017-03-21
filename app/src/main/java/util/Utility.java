@@ -2,6 +2,8 @@ package util;
 
 import android.text.TextUtils;
 
+import com.google.gson.Gson;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,6 +13,7 @@ import java.util.Map;
 import db.City;
 import db.County;
 import db.Province;
+import gson.Weather;
 
 /**
  * Created by Administrator on 2017/3/19.
@@ -94,4 +97,20 @@ public class Utility {
     }
 
 
+    /**将返回的JSON解析成Weather实体类
+     * 得到的数据就是Weather中对应的实体类中的各个字段
+     * @param response
+     * @return
+     */
+    public  static Weather handlerWeatherRrsponse(String response){
+        try {
+            JSONObject jsonObject=new JSONObject(response);
+            JSONArray jsonArray=jsonObject.getJSONArray("HeWeather");
+            String weatherContent=jsonArray.getJSONObject(0).toString();
+            return  new Gson().fromJson(weatherContent,Weather.class);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return  null;
+    }
 }

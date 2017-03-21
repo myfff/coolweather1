@@ -1,10 +1,10 @@
 package com.example.administrator.coolweather;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -111,9 +111,15 @@ public class ChooseAreaFragment extends Fragment {
                 } else if (currentLeve == LEVEL_CITY) {
                     selectedCity = cityList.get(position);
                     queryCountys();
+                }else if (currentLeve==LEVEL_COUNTY){   //我们需要在我们点击具体的某个县的时候，进行天气预报的跳转
+                    //得到Weather_id  我们进行跳转
+                    String weather_id=countyList.get(position).getWeatherId();
+                    Intent intent=new Intent(getContext(),WeatherActivity.class);
+                    intent.putExtra("weather_id",weather_id);
+                    startActivity(intent);
+                    getActivity().finish();
                 }
             }
-
         });
 
         bt_back.setOnClickListener(new View.OnClickListener() {
@@ -177,7 +183,6 @@ public class ChooseAreaFragment extends Fragment {
         } else {
             int provinceCode = selectedProvince.getProviceCode();
             String adress = "http://guolin.tech/api/china/" + provinceCode;
-            Log.i("打开刚回来",adress);
             queryFromServer(adress, "City");
         }
     }
@@ -201,7 +206,6 @@ public class ChooseAreaFragment extends Fragment {
             int provinceCode = selectedProvince.getProviceCode();
             int cityCode = selectedCity.getCityCode();
             String adress = "http://guolin.tech/api/china/" + provinceCode + "/" + cityCode;
-            Log.i("dkjghnmv dgvslkgjks看见帅哥", "queryCountys: "+adress);
             queryFromServer(adress,"County");
         }
     }

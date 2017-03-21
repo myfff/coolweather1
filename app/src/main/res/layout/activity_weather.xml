@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    tools:context="com.example.administrator.coolweather.WeatherActivity">
+<!--帧布局将图片覆盖完全成为背景图-->
+    <!--给具体的详情信息提供背景图-->
+    <ImageView
+        android:id="@+id/bing_pic_img"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop" />
+
+    <ScrollView
+        android:id="@+id/weather_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:overScrollMode="never"
+        android:scrollbars="none">
+<!--  android:fitsSystemWindows="true" 表示为系统状态栏留出空间-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:fitsSystemWindows="true">
+
+            <include layout="@layout/title" />
+
+            <include layout="@layout/now" />
+
+            <include layout="@layout/forecast" />
+
+            <include layout="@layout/aqi" />
+
+            <include layout="@layout/suggestion" />
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>
