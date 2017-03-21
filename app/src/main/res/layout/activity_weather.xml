@@ -12,7 +12,20 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop" />
+    <!--但我们想要切换城市的时候，我们要在此活动中复用 之前写的遍历各个省市县
+    我们通过v4包
+    DrawerLayout（只包含两个）包含第一个主界面   第2个位侧边栏
+    -->
+    <android.support.v4.widget.DrawerLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/draw_layout">
 
+    <!--下拉刷新触发更新事件-->
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/swipe_refresh">
     <ScrollView
         android:id="@+id/weather_layout"
         android:layout_width="match_parent"
@@ -37,4 +50,13 @@
             <include layout="@layout/suggestion" />
         </LinearLayout>
     </ScrollView>
+    </android.support.v4.widget.SwipeRefreshLayout>
+        <fragment
+            android:name="com.example.administrator.coolweather.ChooseAreaFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/choose_area_frament2"
+            android:layout_gravity="start"
+            />
+</android.support.v4.widget.DrawerLayout>
 </FrameLayout>

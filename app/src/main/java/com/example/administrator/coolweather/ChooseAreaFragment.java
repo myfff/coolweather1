@@ -114,10 +114,21 @@ public class ChooseAreaFragment extends Fragment {
                 }else if (currentLeve==LEVEL_COUNTY){   //我们需要在我们点击具体的某个县的时候，进行天气预报的跳转
                     //得到Weather_id  我们进行跳转
                     String weather_id=countyList.get(position).getWeatherId();
-                    Intent intent=new Intent(getContext(),WeatherActivity.class);
-                    intent.putExtra("weather_id",weather_id);
-                    startActivity(intent);
-                    getActivity().finish();
+                    if(getActivity()instanceof MainActivity){
+                        //打开WeatherActivity
+                        Intent intent=new Intent(getContext(),WeatherActivity.class);
+                        intent.putExtra("weather_id",weather_id);
+                        startActivity(intent);
+                        getActivity().finish();
+                    }else  if (getActivity() instanceof  WeatherActivity){
+                        //在本页面，无需做逻辑处理，只需要得到上下文对象关闭侧边栏打开主界面即可
+                        WeatherActivity activity= (WeatherActivity) getActivity();
+                        activity.drawerLayout.closeDrawers();
+                        //跳转显示进度条
+                        activity.swipeRefresh.setRefreshing(true);
+                        //然后请求最新天气的信息
+                        activity.requestWether(weather_id);
+                    }
                 }
             }
         });
