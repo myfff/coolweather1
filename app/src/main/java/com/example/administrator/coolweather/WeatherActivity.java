@@ -61,13 +61,13 @@ public class WeatherActivity extends AppCompatActivity {
     /**
      * 获取必应背图片作为显示天气信息界面的背景图
      */
-    private ImageView  bingPicImg;
+    private ImageView bingPicImg;
 
     /**
-     *采用下拉来触发更新事件
+     * 采用下拉来触发更新事件
      * 外面嵌套了一层SwipeRefreshLayout
      */
-   public SwipeRefreshLayout swipeRefresh;
+    public SwipeRefreshLayout swipeRefresh;
     /**
      * 去服务器上查询天气信息的id
      */
@@ -75,6 +75,7 @@ public class WeatherActivity extends AppCompatActivity {
 
     /**
      * 以下两个控件是用来处理滑动菜单的逻辑
+     *
      * @param savedInstanceState
      */
     public DrawerLayout drawerLayout;//要共有，要不然在、fragment中得不到对象
@@ -84,35 +85,28 @@ public class WeatherActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //让状态栏和背景融合到一起
+        if (Build.VERSION.SDK_INT >= 20) {
+            View decorView = getWindow().getDecorView();
+            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+            getWindow().setStatusBarColor(Color.TRANSPARENT);
+        }
         setContentView(R.layout.activity_weather);
 
         //最外层
-        drawerLayout=(DrawerLayout)findViewById(R.id.draw_layout);
-        navButton=(Button)findViewById(R.id.nav_button);
-        navButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawerLayout.openDrawer(GravityCompat.START);//此处的Start一定要和布局文件中我们设置的一样
-            //在这里打开侧边栏即遍历省市县，我们还是需要做点击后的逻辑跳转（实在WeratherActivity还是在MainActivity活动中跳转的，具体要在Fragment中做判断）
-            }
-        });
+        drawerLayout = (DrawerLayout) findViewById(R.id.draw_layout);
+        navButton = (Button) findViewById(R.id.nav_button);
 
         //2层做下拉的监听
-        swipeRefresh=(SwipeRefreshLayout)findViewById(R.id.swipe_refresh);
+        swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary);//设置下拉刷新进度条的颜色
 
-        //让状态栏和背景融合到一起
-        if(Build.VERSION.SDK_INT>=20){
-            View decorView=getWindow().getDecorView();
-            decorView.setSystemUiVisibility(  View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-        getWindow().setStatusBarColor(Color.TRANSPARENT);
-        }
 
-        //初始化个控件
+        //3层 初始化个控件
         weatherLayout = (ScrollView) findViewById(R.id.weather_layout);
 
         //头布局
-       titleCity=(TextView)findViewById(R.id.title_text);
+        titleCity = (TextView) findViewById(R.id.title_text);
         titltUpdataTime = (TextView) findViewById(R.id.title_updata_time);
         //当天消息
         degreeText = (TextView) findViewById(R.id.degree_text);
@@ -123,37 +117,45 @@ public class WeatherActivity extends AppCompatActivity {
         aqiText = (TextView) findViewById(R.id.api_text);
         pm25Text = (TextView) findViewById(R.id.pm25_text);
         //生活建议
-        comfortText=(TextView)findViewById(R.id.comfort_text);
-        carWashText=(TextView)findViewById(R.id.car_wash_text);
-        sportText=(TextView)findViewById(R.id.sport_text);
+        comfortText = (TextView) findViewById(R.id.comfort_text);
+        carWashText = (TextView) findViewById(R.id.car_wash_text);
+        sportText = (TextView) findViewById(R.id.sport_text);
 
-        bingPicImg=(ImageView)findViewById(R.id.bing_pic_img);
+        bingPicImg = (ImageView) findViewById(R.id.bing_pic_img);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         //查看背景图片是否有缓存链接地址
-        String bingpic=prefs.getString("bing_pic",null);
-        if(bingpic!=null){
+        String bingpic = prefs.getString("bing_pic", null);
+        if (bingpic != null) {
             //有缓存就直接进行加载，根据bingpic链接地址加载给控件bingPicImg适配图片
             Glide.with(this).load(bingpic).into(bingPicImg);
-        }else {
+        } else {
             //去网络中加载图片
             loadBingPic();
         }
 
-       //获取Weather实例（这里我们存储和请求的都是通过weather_id得到的信息，通需要通过解析解析才能得到我们想要的Weather）
+        //获取Weather实例（这里我们存储和请求的都是通过weather_id得到的信息，通需要通过解析解析才能得到我们想要的Weather）
         String weatherString = prefs.getString("weather", null);
         if (weatherString != null) {
             //有缓存直接解析天气信息
             Weather weather = Utility.handlerWeatherRrsponse(weatherString);
             //当有缓存时我们刷新界面我们只需要用当前的weather_id是一样的
-           mWeratherId=weather.basic.weatherID;
+            mWeratherId = weather.basic.weatherID;
             showWeatherInfo(weather);
         } else {
             //无缓存区服务器上取缓存（跳转界面是传递过来的,第一次请求的肯定是没有缓存，我们用传递过来的）
-           mWeratherId= getIntent().getStringExtra("weather_id");
+            mWeratherId = getIntent().getStringExtra("weather_id");
             weatherLayout.setVisibility(View.INVISIBLE);//请求的时候隐藏ScoolerView，要不然为空很难看
-           //下拉时请求最新的天气
+            //下拉时请求最新的天气
             requestWether(mWeratherId);
         }
+
+        navButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.openDrawer(GravityCompat.START);//此处的Start一定要和布局文件中我们设置的一样
+                //在这里打开侧边栏即遍历省市县，我们还是需要做点击后的逻辑跳转（实在WeratherActivity还是在MainActivity活动中跳转的，具体要在Fragment中做判断）
+            }
+        });
 
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -164,45 +166,17 @@ public class WeatherActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * 加载必应每日一图
-     */
-    private void loadBingPic() {
-        String requestBingPic="httP://guolin.tech/api/bing_pic";
-        HttpUtil.sendOKHttpRequest(requestBingPic, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                //请求网络失败
-                Toast.makeText(getApplicationContext(),"请求必应每日一图的链接地址失败",Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                //得到链接地址保存并且要更新图片
-                final String bingpic=response.body().string();
-                PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this)
-                        .edit().putString("bing_pic",bingpic).commit();
-                //刷新背景图片(从子线程中切换到主线程)
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Glide.with(WeatherActivity.this).load(bingpic).into(bingPicImg);
-                    }
-                });
-            }
-        });
-    }
 
     /**
      * 根据天气id请求城市天气信息
      *
      * @param weatherId
      */
-    public  void requestWether(String weatherId) {
+    public void requestWether(String weatherId) {
         //CN101020100 就是weatherid（只有这一部分是变得）
         String weatherURl = "http://guolin.tech/api/weather?cityid=" + weatherId +
                 "&key=55af7b5faa5e47a8bddd1e92fcdbdf3c";
-        Log.i("ahkjd ", "requestWether: "+weatherURl);
+        Log.i("ahkjd ", "requestWether: " + weatherURl);
         HttpUtil.sendOKHttpRequest(weatherURl, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -211,10 +185,11 @@ public class WeatherActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         Toast.makeText(getApplicationContext(), "请求失败", Toast.LENGTH_SHORT).show();
-                   swipeRefresh.setRefreshing(false);//刷新事件结束，并隐藏刷新进度条
+                        swipeRefresh.setRefreshing(false);//刷新事件结束，并隐藏刷新进度条
                     }
                 });
             }
+
             /**请求成功
              * @param call
              * @param response
@@ -233,11 +208,9 @@ public class WeatherActivity extends AppCompatActivity {
                             SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
                             editor.putString("weather", responseText);
                             editor.commit();
-
+                            // 记录最新的mWeatherId,要不然当我们切换一个城市刷新的时候得到的是上次那个城市的，而非我们切换后的
+                            mWeratherId = weather.basic.weatherID;
                             showWeatherInfo(weather);
-                          /*  //在此里面开启服务
-                            Intent intent=new Intent(WeatherActivity.this, AutoUpDateService.class);
-                            startService(intent);*/
                         } else {
                             Toast.makeText(getApplicationContext(), "获取解析天气信息失败", Toast.LENGTH_SHORT).show();
                         }
@@ -250,60 +223,84 @@ public class WeatherActivity extends AppCompatActivity {
     }
 
     /**
+     * 加载必应每日一图
+     */
+    private void loadBingPic() {
+        String requestBingPic = "httP://guolin.tech/api/bing_pic";
+        HttpUtil.sendOKHttpRequest(requestBingPic, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                //请求网络失败
+                Toast.makeText(getApplicationContext(), "请求必应每日一图的链接地址失败", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                //得到链接地址保存并且要更新图片
+                final String bingpic = response.body().string();
+                PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this)
+                        .edit().putString("bing_pic", bingpic).commit();
+                //刷新背景图片(从子线程中切换到主线程)
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Glide.with(WeatherActivity.this).load(bingpic).into(bingPicImg);
+                    }
+                });
+            }
+        });
+    }
+
+    /**
      * 处理并展示Weather实体类中的数据
      *
      * @param weather
      */
     private void showWeatherInfo(Weather weather) {
         //如果请求和解析成功。需要显示到界面
-        String nameCity=weather.basic.cityName;
-        String updateTime=weather.basic.update.updateTime.split(" ")[1];
+        String nameCity = weather.basic.cityName;
+        String updateTime = weather.basic.update.updateTime.split(" ")[1];
 
-        String degree=weather.now.temperature+"度";
-        String weatherInfo=weather.now.more.info;
+        String degree = weather.now.temperature + "℃";
+        String weatherInfo = weather.now.more.info;
 
         titleCity.setText(nameCity);
-         titltUpdataTime.setText(updateTime);
+        titltUpdataTime.setText(updateTime);
 
         degreeText.setText(degree);
         weatherInfoText.setText(weatherInfo);
 
         //在添加未来信息的时候需要清空
         forecastLayout.removeAllViews();
-        for(Forecast forecast:weather.forecastList){
-            View view= LayoutInflater.from(this).inflate(R.layout.forecast_item,forecastLayout,false);
+        for (Forecast forecast : weather.forecastList) {
+            View view = LayoutInflater.from(this).inflate(R.layout.forecast_item, forecastLayout, false);
 
-            TextView dataTxext=(TextView)view.findViewById(R.id.data_text);
-            TextView infoText=(TextView)view.findViewById(R.id.info_text);
-            TextView  maxText=(TextView)view.findViewById(R.id.max_text);
-            TextView  minText=(TextView)view.findViewById(R.id.min_text);
+            TextView dataTxext = (TextView) view.findViewById(R.id.data_text);
+            TextView infoText = (TextView) view.findViewById(R.id.info_text);
+            TextView maxText = (TextView) view.findViewById(R.id.max_text);
+            TextView minText = (TextView) view.findViewById(R.id.min_text);
 
             dataTxext.setText(forecast.date);
             infoText.setText(forecast.more.info);
-            maxText.setText(forecast.temperature.max);
-            minText.setText(forecast.temperature.min);
+            maxText.setText(forecast.temperature.max+"℃");
+            minText.setText(forecast.temperature.min+"℃");
             forecastLayout.addView(view);
         }
 
-if(weather.aqi!=null){
-    aqiText.setText(weather.aqi.city.aqi);
-    pm25Text.setText(weather.aqi.city.pm25);
+        if (weather.aqi != null) {
+            aqiText.setText(weather.aqi.city.aqi);
+            pm25Text.setText(weather.aqi.city.pm25);
 
-}
-        String  comfort="舒适度："+weather.suggestion.comfort.info;
-        String  carWash="洗车指数: "+weather.suggestion.carWash.info;
-        String  sport="运动建议: "+weather.suggestion.sport.info;
+        }
+        String comfort = "舒适度：" + weather.suggestion.comfort.info;
+        String carWash = "洗车指数: " + weather.suggestion.carWash.info;
+        String sport = "运动建议: " + weather.suggestion.sport.info;
         comfortText.setText(comfort);
         carWashText.setText(carWash);
         sportText.setText(sport);
-
         weatherLayout.setVisibility(View.VISIBLE);
-        //一旦先选中某个城市，并且成功显示天气信息，我们让其8个小时更新一次
-        if(weather!=null && "ok".equals(weather.status)){
-            Intent intent=new Intent(WeatherActivity.this,AutoUpDateService.class);
-            startService(intent);
-        }else {
-            Toast.makeText(getApplicationContext(),"获取天气信息失败",Toast.LENGTH_SHORT).show();
-        }
+        Intent intent = new Intent(WeatherActivity.this, AutoUpDateService.class);
+        startService(intent);
+
     }
 }

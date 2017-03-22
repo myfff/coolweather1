@@ -14,7 +14,7 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:id="@+id/bt_back"
-            android:background="@drawable/back"
+            android:background="@drawable/ic_back"
           android:layout_centerVertical="true"
             android:layout_marginLeft="20dp"
             />
