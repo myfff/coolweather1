@@ -4,6 +4,7 @@ import org.litepal.crud.DataSupport;
 
 /**
  * Created by Administrator on 2017/3/19.
+ * 服务器返回JSON解析后  对应存储的数据库表，
  */
 
 public class Province  extends DataSupport {

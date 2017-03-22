@@ -1,5 +1,6 @@
 package com.example.administrator.coolweather;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
@@ -32,6 +33,7 @@ import gson.Weather;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
+import service.AutoUpDateService;
 import util.HttpUtil;
 import util.Utility;
 /*程序的详情界面*/
@@ -84,6 +86,7 @@ public class WeatherActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
 
+        //最外层
         drawerLayout=(DrawerLayout)findViewById(R.id.draw_layout);
         navButton=(Button)findViewById(R.id.nav_button);
         navButton.setOnClickListener(new View.OnClickListener() {
@@ -93,7 +96,8 @@ public class WeatherActivity extends AppCompatActivity {
             //在这里打开侧边栏即遍历省市县，我们还是需要做点击后的逻辑跳转（实在WeratherActivity还是在MainActivity活动中跳转的，具体要在Fragment中做判断）
             }
         });
-        //做下拉的监听
+
+        //2层做下拉的监听
         swipeRefresh=(SwipeRefreshLayout)findViewById(R.id.swipe_refresh);
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary);//设置下拉刷新进度条的颜色
 
@@ -125,7 +129,7 @@ public class WeatherActivity extends AppCompatActivity {
 
         bingPicImg=(ImageView)findViewById(R.id.bing_pic_img);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        //看图片是否有缓存链接地址
+        //查看背景图片是否有缓存链接地址
         String bingpic=prefs.getString("bing_pic",null);
         if(bingpic!=null){
             //有缓存就直接进行加载，根据bingpic链接地址加载给控件bingPicImg适配图片
@@ -134,25 +138,26 @@ public class WeatherActivity extends AppCompatActivity {
             //去网络中加载图片
             loadBingPic();
         }
-       //获取Weather实例
+
+       //获取Weather实例（这里我们存储和请求的都是通过weather_id得到的信息，通需要通过解析解析才能得到我们想要的Weather）
         String weatherString = prefs.getString("weather", null);
         if (weatherString != null) {
             //有缓存直接解析天气信息
             Weather weather = Utility.handlerWeatherRrsponse(weatherString);
+            //当有缓存时我们刷新界面我们只需要用当前的weather_id是一样的
            mWeratherId=weather.basic.weatherID;
             showWeatherInfo(weather);
         } else {
-            //无缓存区服务器上取缓存
+            //无缓存区服务器上取缓存（跳转界面是传递过来的,第一次请求的肯定是没有缓存，我们用传递过来的）
            mWeratherId= getIntent().getStringExtra("weather_id");
             weatherLayout.setVisibility(View.INVISIBLE);//请求的时候隐藏ScoolerView，要不然为空很难看
-         //下拉时请求最新的天气
+           //下拉时请求最新的天气
             requestWether(mWeratherId);
         }
 
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-
                 //如果下拉，就进行天气的更新，即网络请求新的天气（但此时我们需要一个weatherid，需要在）
                 requestWether(mWeratherId);
             }
@@ -228,7 +233,11 @@ public class WeatherActivity extends AppCompatActivity {
                             SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
                             editor.putString("weather", responseText);
                             editor.commit();
+
                             showWeatherInfo(weather);
+                          /*  //在此里面开启服务
+                            Intent intent=new Intent(WeatherActivity.this, AutoUpDateService.class);
+                            startService(intent);*/
                         } else {
                             Toast.makeText(getApplicationContext(), "获取解析天气信息失败", Toast.LENGTH_SHORT).show();
                         }
@@ -281,7 +290,6 @@ if(weather.aqi!=null){
     pm25Text.setText(weather.aqi.city.pm25);
 
 }
-
         String  comfort="舒适度："+weather.suggestion.comfort.info;
         String  carWash="洗车指数: "+weather.suggestion.carWash.info;
         String  sport="运动建议: "+weather.suggestion.sport.info;
@@ -290,5 +298,12 @@ if(weather.aqi!=null){
         sportText.setText(sport);
 
         weatherLayout.setVisibility(View.VISIBLE);
+        //一旦先选中某个城市，并且成功显示天气信息，我们让其8个小时更新一次
+        if(weather!=null && "ok".equals(weather.status)){
+            Intent intent=new Intent(WeatherActivity.this,AutoUpDateService.class);
+            startService(intent);
+        }else {
+            Toast.makeText(getApplicationContext(),"获取天气信息失败",Toast.LENGTH_SHORT).show();
+        }
     }
 }

@@ -32,13 +32,12 @@
         android:textColor="#fff"/>
 
     <Button
-
-        android:text="选择"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:text="更多"
+        android:layout_width="60dp"
+        android:layout_height="40dp"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
-      android:layout_marginLeft="10dp"
+       android:layout_marginLeft="10dp"
         
         android:id="@+id/nav_button" />
 </RelativeLayout>

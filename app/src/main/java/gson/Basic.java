@@ -211,6 +211,10 @@ import com.google.gson.annotations.SerializedName;
     ]
 }*/
 
+    /*拿到省里面的weatherid去请求某个地方详细的天气信息，取出HeWeather字段即可得到一个
+    天气信息是一个JSON字段，我们通过Gson解析获得各个字段，我们用了对应的类
+    遇到{}我们讲究创建类，[]创建数组，但数组里面的内容还是要创建对象（有多个对象我们直选一个）*/
+
 public class Basic {
     //JSON中的字段有些可能不适合做Java字段来命名，所以使用注解的方式来建立JSON字段和Java字段之间的映射
    @SerializedName("city")

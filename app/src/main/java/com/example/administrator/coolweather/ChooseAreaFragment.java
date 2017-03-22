@@ -34,6 +34,7 @@ import util.Utility;
 /**
  * Created by Administrator on 2017/3/20.
  */
+/*两个activity中 都复用了ChooseAreaFrament*/
 /*遍历全国省市县的代码我们在后面们还要用到，为了方便复用我们写在碎片里（后面想要直接在布局里面加载即可），而不是activity*/
 
 public class ChooseAreaFragment extends Fragment {
@@ -46,6 +47,7 @@ public class ChooseAreaFragment extends Fragment {
     public static final int LEVEL_COUNTY = 2;
     /**
      * 集合数据，泛型为String，是用来存储省，或市或县的集合列表
+     * 他来做适配的数据
      */
     private List<String> listDatas = new ArrayList<>();
     private ArrayAdapter<String> adapter;
@@ -117,8 +119,7 @@ public class ChooseAreaFragment extends Fragment {
                     if(getActivity()instanceof MainActivity){
                         //打开WeatherActivity
                         Intent intent=new Intent(getContext(),WeatherActivity.class);
-                        intent.putExtra("weather_id",weather_id);
-                       System.out.print("测试一下");
+                        intent.putExtra("weather_id",weather_id);//当从主跳转到MainActivity时，记得要把weather传递过去我们好去请求Weather信息
                         startActivity(intent);
                         getActivity().finish();
                     }else  if (getActivity() instanceof  WeatherActivity){
@@ -144,7 +145,8 @@ public class ChooseAreaFragment extends Fragment {
                 }
             }
         });
-        queryProvinces();//由于第一次初始化的时候，这些逻辑都不会走，我们只有调用一下查询Province
+        //由于第一次初始化的时候，这些逻辑都不会走，我们只有调用一下查询Province，并且一定会有
+        queryProvinces();
     }
 
     /**
@@ -259,7 +261,7 @@ public class ChooseAreaFragment extends Fragment {
                             //请求成功，当显示的时候，关闭进度条
                             closeProgressDialog();
                             if (type.equals("Province")) {
-                                queryProvinces();
+                                queryProvinces();//我们需要再回去调一下，让listView更新
                             } else if (type.equals("City")) {
                                 queryCitys();
                             } else if (type.equals("County")) {
